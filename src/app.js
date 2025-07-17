@@ -1,6 +1,9 @@
 class App {
   constructor() {
     this.notes = []; // Array to hold notes
+
+    this.$placeholder = document.querySelector('#placeholder'); // Element for the placeholder
+    this.$notes = document.querySelector('#notes'); // Element for the notes container
     this.$form = document.querySelector('#form'); // Element for the form
     this.$noteTitle = document.querySelector('#note-title'); // Element for the note title
     this.$noteText = document.querySelector('#note-text'); // Element for the note text
@@ -47,6 +50,8 @@ class App {
     this.$form.classList.remove('form-open');
     this.$noteTitle.style.display = 'none';
     this.$formButtons.style.display = 'none';
+    this.$noteTitle.value = '';
+    this.$noteText.value = '';
   }
 
   addNote(note) {
@@ -57,7 +62,30 @@ class App {
       id: this.notes.length > 0 ? this.notes[this.notes.length - 1].id + 1 : 1, // Date.now(), // Unique ID based on timestamp
     };
     this.notes = [...this.notes, newNote]; // Add the new note to the notes array
-    console.log(this.notes);
+    this.displayNotes();
+    this.closeForm();
+  }
+
+  displayNotes() {
+    const hasNotes = this.notes.length > 0;
+    this.$placeholder.style.display = hasNotes ? 'none' : 'flex'; // Show or hide the placeholder based on notes
+
+    this.$notes.innerHTML = this.notes
+      .map(
+        (note) => `
+      <div style="background: ${note.color};" class="note" id="${note.id}">
+        <div class="${note.title && 'note-title'}">${note.title}</div>
+        <div class="note-text">${note.text}</div>
+        <div class="toolbar-container">
+          <div class="toolbar">
+            <img class="toolbar-color" src="/palette.png" alt="Change Color" />
+            <img class="toolbar-delete" src="/delete.png" alt="Delete Color" />
+          </div>
+        </div>
+      </div>
+    `,
+      )
+      .join('');
   }
 }
 
