@@ -4,6 +4,7 @@ class App {
 
     this.$placeholder = document.querySelector('#placeholder'); // Element for the placeholder
     this.$notes = document.querySelector('#notes'); // Element for the notes container
+    this.$formCloseButton = document.querySelector('#form-close-button'); // Element for the form close button
     this.$form = document.querySelector('#form'); // Element for the form
     this.$noteTitle = document.querySelector('#note-title'); // Element for the note title
     this.$noteText = document.querySelector('#note-text'); // Element for the note text
@@ -20,22 +21,32 @@ class App {
       event.preventDefault(); // Prevent the default form submission
       const title = this.$noteTitle.value.trim();
       const text = this.$noteText.value.trim();
-
       const hasNote = title || text; // Check if there's any note content
       if (hasNote) {
         this.addNote({ title, text });
       }
+    });
+
+    this.$formCloseButton.addEventListener('click', (event) => {
+      // Whenever the close button is clicked, click even that we regsiter for the form close button
+      // will bubble up to the click event handler of the body and will cause the handle form click to run
+      event.stopPropagation(); // Prevent the click event from bubbling up to the body
+      this.closeForm();
     });
   }
 
   handleFormClick(event) {
     const isFormClicked = this.$form.contains(event.target);
 
+    const title = this.$noteTitle.value.trim();
+    const text = this.$noteText.value.trim();
+    const hasNote = title || text;
+
     if (isFormClicked) {
-      // Open the form if clicked
       this.openForm();
+    } else if (hasNote) {
+      this.addNote({ title, text });
     } else {
-      // Close the form if clicked outside
       this.closeForm();
     }
   }
