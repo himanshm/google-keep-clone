@@ -1,6 +1,9 @@
 class App {
   constructor() {
     this.notes = []; // Array to hold notes
+    this.title = '';
+    this.text = '';
+    this.noteId = '';
 
     this.$placeholder = document.querySelector('#placeholder'); // Element for the placeholder
     this.$notes = document.querySelector('#notes'); // Element for the notes container
@@ -9,12 +12,18 @@ class App {
     this.$noteTitle = document.querySelector('#note-title'); // Element for the note title
     this.$noteText = document.querySelector('#note-text'); // Element for the note text
     this.$formButtons = document.querySelector('#form-buttons'); // Elements for the form buttons
+    this.$modal = document.querySelector('.modal'); // Element for the modal
+    this.$modalTitle = document.querySelector('.modal-title');
+    this.$modalText = document.querySelector('.modal-text');
+    this.$modalCloseButton = document.querySelector('.modal-close-button');
     this.addEventListeners();
   }
 
   addEventListeners() {
     document.body.addEventListener('click', (event) => {
       this.handleFormClick(event);
+      this.selectNote(event);
+      this.openModal(event);
     });
 
     this.$form.addEventListener('submit', (event) => {
@@ -32,6 +41,10 @@ class App {
       // will bubble up to the click event handler of the body and will cause the handle form click to run
       event.stopPropagation(); // Prevent the click event from bubbling up to the body
       this.closeForm();
+    });
+
+    this.$modalCloseButton.addEventListener('click', (event) => {
+      this.closeModal(event);
     });
   }
 
@@ -65,6 +78,18 @@ class App {
     this.$noteText.value = '';
   }
 
+  openModal(event) {
+    if (event.target.closest('.note')) {
+      this.$modal.classList.toggle('open-modal');
+      this.$modalTitle.value = this.title;
+      this.$modalText.value = this.text;
+    }
+  }
+
+  closeModal(event) {
+    this.editNote();
+  }
+
   addNote(note) {
     const newNote = {
       title: note.title,
@@ -75,6 +100,33 @@ class App {
     this.notes = [...this.notes, newNote]; // Add the new note to the notes array
     this.displayNotes();
     this.closeForm();
+  }
+
+  editNote() {
+    const updatedTitle = this.$modalTitle.value.trim();
+    const updatedText = this.$modalText.value.trim();
+
+    this.notes = this.notes.map((note) =>
+      note.id === Number(this.noteId)
+        ? { ...note, title: updatedTitle, text: updatedText }
+        : note,
+    );
+    this.displayNotes();
+    this.$modal.classList.toggle('open-modal');
+  }
+
+  selectNote(event) {
+    const $selectedNote = event.target.closest('.note');
+    // let noteTitle = '';
+    // let noteText = '';
+    if ($selectedNote) {
+      // [noteTitle, noteText] = $selectedNote.children;
+      console.log($selectedNote);
+      this.title =
+        $selectedNote?.querySelector('.note-title')?.textContent || '';
+      this.text = $selectedNote?.querySelector('.note-text')?.textContent || '';
+      this.noteId = $selectedNote.id; // Get the ID of the selected note
+    }
   }
 
   displayNotes() {
