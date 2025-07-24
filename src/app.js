@@ -16,6 +16,7 @@ class App {
     this.$modalTitle = document.querySelector('.modal-title');
     this.$modalText = document.querySelector('.modal-text');
     this.$modalCloseButton = document.querySelector('.modal-close-button');
+    this.$colorToolip = document.querySelector('#color-tooltip')
     this.addEventListeners();
   }
 
@@ -24,6 +25,29 @@ class App {
       this.handleFormClick(event);
       this.selectNote(event);
       this.openModal(event);
+    });
+
+    document.body.addEventListener('mouseover', event => {
+      this.openTooltip(event);
+    });
+
+    document.body.addEventListener('mouseout', event => {
+      this.closeTooltip(event);
+    });
+
+    this.$colorToolip.addEventListener('mouseover', function() {
+      this.style.display = 'flex';
+    });
+
+    this.$colorToolip.addEventListener('mouseout', function() {
+      this.style.display = 'none';
+    });
+
+    this.$colorToolip.addEventListener('click', event => {
+      const color = event.target.dataset.color;
+      if (color) {
+        this.editNoteColor(color);
+      }
     });
 
     this.$form.addEventListener('submit', (event) => {
@@ -90,6 +114,28 @@ class App {
     this.editNote();
   }
 
+  openTooltip(event) {
+    if (!event.target.matches('.toolbar-color')) return;
+    const noteElement = event.target.closest('.note');
+    if (noteElement) {
+      this.noteId = noteElement.id;
+    }
+    const noteCoords = event.target.getBoundingClientRect();
+    const horizontal = noteCoords.left + window.scrollX;
+    const vertical = noteCoords.top + window.scrollY;
+
+    const offsetX = 0
+    const offsetY = -305;
+
+    this.$colorToolip.style.transform = `translate(${horizontal + offsetX}px, ${vertical + offsetY}px)`;
+    this.$colorToolip.style.display = 'flex';
+  }
+
+  closeTooltip(event) {
+    if (!event.target.matches('.toolbar-color')) return;
+    this.$colorToolip.style.display = 'none';
+  }
+
   addNote(note) {
     const newNote = {
       title: note.title,
@@ -113,6 +159,15 @@ class App {
     );
     this.displayNotes();
     this.$modal.classList.toggle('open-modal');
+  }
+
+  editNoteColor(color) {
+    this.notes = this.notes.map(note =>
+      note.id === Number(this.noteId)
+        ? { ...note, color }
+        : note,
+    )
+    this.displayNotes();
   }
 
   selectNote(event) {
